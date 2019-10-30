@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+
+    <script id="vertex-shader" type="x-shader/x-vertex">
+
+        attribute  vec4 vPosition;
+
+        attribute  vec2 vTexCoord;
+
+        varying vec2 fTexCoord;
+
+        uniform vec3 theta;
+
+        uniform mat4 modelViewMatrix;
+        uniform mat4 projectionMatrix;
+
+        void main()
+        {
+            fTexCoord = vTexCoord;
+
+            gl_Position = projectionMatrix * modelViewMatrix * vPosition;
+            gl_Position.z = -gl_Position.z;
+        }
+    </script>
+
+    <script id="fragment-shader" type="x-shader/x-fragment">
+
+        precision mediump int;    
+        precision mediump float;
+        varying  vec2 fTexCoord;
+
+        uniform sampler2D Tex0;
+        uniform sampler2D Tex1;
+
+        vec4 gradient(vec4 red, vec2 tex_coords) {
+            float s = tex_coords[0];
+            float t = tex_coords[1];
+            float percent;
+        
+            percent = (1.0-t)/0.7;
+            return vec4(red[0]*percent,red[1]*percent,red[2]*percent,red[3]);
+        }
+        // http://learnwebgl.brown37.net/10_surface_properties/texture_mapping_procedural.html
+
+        void main()
+        {
+            gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+            vec4 texture = texture2D(Tex0, fTexCoord);
+            texture = gradient(texture2D(Tex0, fTexCoord)*texture2D(Tex1, fTexCoord), fTexCoord);
+            gl_FragColor = gl_FragColor*texture;
+        }
+    </script>
+
+
+
+    <script type="text/javascript" src="./Common/webgl-utils.js"></script>
+    <script type="text/javascript" src="./Common/initShaders.js"></script>
+    <script type="text/javascript" src="./Common/MV.js"></script>
+    <script type="text/javascript" src="Homework2.js"></script>
+
+    <input type="button" value="Restart Animation" onClick="window.location.href=window.location.href">
+    <button id="pause_anim">PLAY/PAUSE animation</button>
+
+
+    <div>
+    <p> VIEW PARAMETERS:  
+        <label for="slide_theta">Theta </label>
+        <input id="slide_theta" type="range" min="0" max="1000" step="0.1" value="110"/>
+        <label for="slide_theta"> </label>
+
+        <label for="slide_phi">Phi </label>
+        <input id="slide_phi" type="range" min="0" max="1000" step="0.1" value="690"/>
+        <label for="slide_phi"> </label>
+    </p>
+    </div>
+
+    <body>
+        <canvas id="gl-canvas" width="1500" height="1500">
+        Oops ... your browser doesn't support the HTML5 canvas element
+        </canvas>
+    </body>
+</html>
